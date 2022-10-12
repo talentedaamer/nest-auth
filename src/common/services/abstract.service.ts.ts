@@ -8,7 +8,9 @@ export abstract class AbstractService {
   ) {}
   
   async all(): Promise<any> {
-    return await this.repository.find();
+    return await this.repository.find({
+      order: { id: 'ASC' }
+    });
   }
   
   async create(data): Promise<any> {

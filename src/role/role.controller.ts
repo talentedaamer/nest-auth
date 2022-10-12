@@ -36,7 +36,7 @@ export class RoleController {
     
         return this.roleService.create({
             name,
-            permissions: permissions.map( id => ({id}))
+            permissions: permissions && permissions.map( id => ({id}))
         });
     }
 
@@ -55,21 +55,22 @@ export class RoleController {
     async update( @Param('id') id: number, @Body() body: UpdateRoleDto ) {
         const { name, permissions } = body;
     
-        if (! await this.hasFoundRole(id) ) {
+        if ( !await this.hasFoundRole(id) ) {
             throw new NotFoundException(`role not found with #${id}`)
         }
     
-        if ( await this.isRoleExists(body) ) {
+        if ( name && await this.isRoleExists(body) ) {
             throw new ConflictException(`role already exists`);
         }
-        
-        await this.roleService.update(id, {name});
-        
+
+        if ( name )
+            await this.roleService.update(id, {name});
+
         const role = await this.roleService.findOne(id);
-        
+
         return this.roleService.create({
             ...role,
-            permissions: permissions.map( id => ({id}))
+            permissions: permissions && permissions.map( id => ({id}))
         });
     }
 

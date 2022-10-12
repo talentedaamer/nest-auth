@@ -1,8 +1,9 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateRoleDto {
   @IsNotEmpty()
   name: string;
-  
+
+  @IsOptional()
   permissions: number[]
 }
