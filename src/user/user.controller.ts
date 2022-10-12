@@ -10,9 +10,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from "./user.service";
 import * as bcrypt from 'bcryptjs';
+import { User } from "./entities/user.entity";
 
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @Controller('users')
 export class UserController {
   
@@ -23,47 +24,47 @@ export class UserController {
   
   @Get()
   async all( @Query('page') page = 1): Promise<User[]> {
-    return await this.userService.paginate(page);
+    return await this.userService.all();
   }
   
-  @Post()
-  async create( @Body() body: UserCreateDto ): Promise<User> {
-    const password = await bcrypt.hash(body.password, 12);
-    const { role_id, ...data } = body;
-    
-    return this.userService.create({
-      ...data,
-      password: password,
-      role: {
-        id: role_id
-      }
-    })
-  }
-  
-  @Get( ':id')
-  async get( @Param('id') id: number ) {
-    return this.userService.findOne({id: id});
-  }
-  
-  @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() body: UserUpdateDto
-  ) {
-    const { role_id, ...data } = body;
-    
-    await this.userService.update(id, {
-      ...data,
-      role: {
-        id: role_id
-      }
-    });
-    
-    return this.userService.findOne({id: id});
-  }
-  
-  @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return this.userService.delete(id);
-  }
+  // @Post()
+  // async create( @Body() body: UserCreateDto ): Promise<User> {
+  //   const password = await bcrypt.hash(body.password, 12);
+  //   // const { role_id, ...data } = body;
+  //
+  //   return this.userService.create({
+  //     ...body,
+  //     password,
+  //     // role: {
+  //     //   id: role_id
+  //     // }
+  //   })
+  // }
+
+  // @Get( ':id')
+  // async get( @Param('id') id: number ) {
+  //   return this.userService.findOne({id: id});
+  // }
+  //
+  // @Put(':id')
+  // async update(
+  //   @Param('id') id: number,
+  //   @Body() body: UserUpdateDto
+  // ) {
+  //   const { role_id, ...data } = body;
+  //
+  //   await this.userService.update(id, {
+  //     ...data,
+  //     role: {
+  //       id: role_id
+  //     }
+  //   });
+  //
+  //   return this.userService.findOne({id: id});
+  // }
+  //
+  // @Delete(':id')
+  // async delete(@Param('id') id: number) {
+  //   return this.userService.delete(id);
+  // }
 }

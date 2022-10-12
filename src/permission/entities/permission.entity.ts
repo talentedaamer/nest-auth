@@ -5,6 +5,6 @@ export class Permission {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column('varchar', { length: 40 } )
+    @Column('varchar', { length: 40, unique: true } )
     name: string;
 }

@@ -1,6 +1,8 @@
 import { IsNotEmpty } from "class-validator";
 
-export class UpdatePermissionDto {
+export class UpdateRoleDto {
   @IsNotEmpty()
   name: string;
+  
+  permissions?: number[]
 }

@@ -1,6 +1,15 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from "typeorm";
 import { IsBoolean, IsEmail } from "class-validator";
 import { Exclude } from "class-transformer";
+import { Role } from "../../role/entities/role.entity";
 
 @Entity()
 export class User {
@@ -16,13 +25,13 @@ export class User {
   @Column('varchar', { length: 40, unique: true })
   user_name: string;
   
-  @Exclude()
-  @Column('varchar', { length: 40 })
-  password: string;
-  
   @IsEmail()
   @Column('varchar', { length: 40, unique: true })
   email: string;
+  
+  @Exclude()
+  @Column('varchar', { length: 40 })
+  password: string;
   
   @Column('boolean', { default: false })
   is_active: boolean;
@@ -32,4 +41,8 @@ export class User {
   
   @UpdateDateColumn()
   updated_at?: Date;
+  
+  @ManyToOne( () => Role)
+  @JoinColumn( { name: 'role_id' })
+  role: Role
 }

@@ -1,14 +1,22 @@
 version: "3"
+#services:
+#  backend:
+#    build: .
+#    ports:
+#      - '8000:3000'
+#    volumes:
+#      - .:/app
+#    depends_on:
+#      - database
 
-services:
-  database:
-    image: mysql:5.7
-    restart: always
-    environment:
-      MYSQL_DATABASE: angular_nest
-      MYSQL_USER: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
-    volumes:
-      - ./db:/var/lib/mysql
-    ports:
-      - 33066:3306
+#  database:
+#    image: mysql
+#    restart: always
+#    environment:
+#      MYSQL_DATABASE: nest_auth
+#      MYSQL_USER: 'root'
+#      MYSQL_ROOT_PASSWORD: 'root'
+#    volumes:
+#      - ./db:/var/lib/mysql
+#    ports:
+#      - '33066:3306'

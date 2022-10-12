@@ -1,6 +1,8 @@
 import { IsNotEmpty } from "class-validator";
 
-export class CreatePermissionDto {
+export class CreateRoleDto {
   @IsNotEmpty()
   name: string;
+  
+  permissions: number[]
 }

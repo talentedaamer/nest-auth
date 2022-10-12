@@ -1,20 +1,25 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from '@nestjs/common';
+import {
+    Body,
+    ConflictException,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Post,
+    Put,
+} from "@nestjs/common";
 import {RoleService} from "./role.service";
-import {Role} from "./models/role.entity";
-import {UserCreateDto} from "../user/models/user-create.dto";
-import {User} from "../user/models/user.entity";
-import * as bcrypt from "bcryptjs";
-import {RoleCreateDto} from "./models/role-create.dto";
-import {UserUpdateDto} from "../user/models/user-update.dto";
-
+import {Role} from "./entities/role.entity";
+import { CreateRoleDto } from "./dto/create-role.dto";
+import { UpdateRoleDto } from "./dto/update-role.dto";
 
 @Controller('roles')
 export class RoleController {
     
     constructor(
         private roleService: RoleService
-    ) {
-    }
+    ) {}
     
     @Get()
     async all(): Promise<Role[]> {
@@ -22,37 +27,70 @@ export class RoleController {
     }
     
     @Post()
-    async create( @Body() body: RoleCreateDto ): Promise<Role> {
+    async create( @Body() body: CreateRoleDto ): Promise<Role> {
         const { name, permissions } = body;
+        
+        if ( await this.isRoleExists(body) ) {
+            throw new ConflictException(`role already exists`);
+        }
+    
         return this.roleService.create({
             name,
             permissions: permissions.map( id => ({id}))
         });
     }
-    
+
     @Get( ':id')
     async get( @Param('id') id: number ) {
-        return this.roleService.findOne({id: id});
-    }
+        const foundRole = await this.roleService.findOne(id);
     
+        if (!foundRole) {
+            throw new NotFoundException(`role not found`)
+        }
+    
+        return foundRole;
+    }
+
     @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body('name') name: string,
-        @Body('permissions') permissions: number[],
-    ) {
+    async update( @Param('id') id: number, @Body() body: UpdateRoleDto ) {
+        const { name, permissions } = body;
+    
+        if (! await this.hasFoundRole(id) ) {
+            throw new NotFoundException(`role not found with #${id}`)
+        }
+    
+        if ( await this.isRoleExists(body) ) {
+            throw new ConflictException(`role already exists`);
+        }
+        
         await this.roleService.update(id, {name});
         
-        const role = await this.roleService.findOne({id: id});
+        const role = await this.roleService.findOne(id);
         
         return this.roleService.create({
             ...role,
             permissions: permissions.map( id => ({id}))
         });
     }
-    
+
     @Delete(':id')
-    async delete(@Param('id') id: number) {
+    async delete( @Param('id') id: number ) {
+        if (! await this.hasFoundRole(id) ) {
+            throw new NotFoundException(`role not found with #${id}`)
+        }
+    
         return this.roleService.delete(id);
+    }
+    
+    async isRoleExists( createRoleDto: CreateRoleDto | UpdateRoleDto ): Promise<any> {
+        const { name } = createRoleDto;
+        const roleExists = await this.roleService.findByName(name);
+        return !!(roleExists);
+    }
+    
+    async hasFoundRole(id: number): Promise<any> {
+        const foundRole = await this.roleService.findOne(id);
+        
+        return !!(foundRole);
     }
 }

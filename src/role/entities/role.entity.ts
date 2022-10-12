@@ -1,12 +1,12 @@
-import {Column, Entity, JoinColumn, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Permission} from "../../permission/entities/permission.entity";
 
 @Entity('roles')
 export class Role {
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Column()
+    
+    @Column('varchar', { length: 40 } )
     name: string;
     
     @ManyToMany( () => Permission, { cascade: true })
