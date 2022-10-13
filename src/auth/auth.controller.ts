@@ -9,43 +9,43 @@ import {
     Res, UseGuards,
     UseInterceptors
 } from '@nestjs/common';
+import {JwtService} from '@nestjs/jwt';
 import {UserService} from "../user/user.service";
+import {RegisterDto} from "./dto/register.dto";
 // import {RegisterDto} from "./dto/register.dto";
-// import {JwtService} from "@nestjs/jwt";
 // import {Request, Response} from "express";
 // import {AuthGuard} from "./auth.guard";
-// import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller()
 export class AuthController {
 
     constructor(
-        // private userService: UserService,
-        // private jwtService: JwtService
+        private userService: UserService,
+        private jwtService: JwtService
     ) {}
 
-    // @Post('register')
-    // async register( @Body() body: RegisterDto ) {
-    //
-    //     if ( body.password !== body.password_confirm ) {
-    //         throw new BadRequestException('Password mismatch');
-    //     }
-    //
-    //     const salt = await bcrypt.genSalt(10);
-    //     const hash = await bcrypt.hash(body.password, salt);
-    //
-    //     return this.userService.create({
-    //         first_name: body.first_name,
-    //         last_name: body.last_name,
-    //         email: body.email,
-    //         password: hash,
-    //         role: {
-    //             id: 2
-    //         }
-    //     });
-    // }
-    //
+    @Post('register')
+    async register( @Body() body: RegisterDto ) {
+        const { password, confirm_password, ...data } = body;
+
+        if ( password !== confirm_password ) {
+            throw new BadRequestException('Password mismatch');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
+        return this.userService.create({
+            ...data,
+            password: hash,
+            role: {
+                id: 2
+            }
+        });
+    }
+
     // @Post('login')
     // async login(
     //     @Body('email') email: string,

@@ -31,7 +31,8 @@ export class UserController {
   
   @Post()
   async create( @Body() body: CreateUserDto ): Promise<User> {
-    const hash = await bcrypt.hash(body.password, 12);
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(body.password, salt);
     const { user_name, email, role_id, ...data } = body;
 
     if ( user_name && await this.isUsernameExists(body) ) {
@@ -45,9 +46,9 @@ export class UserController {
     return this.userService.create({
       ...body,
       password: hash,
-      role: {
-        id: role_id
-      }
+      // role: {
+      //   id: role_id
+      // }
     })
   }
 
@@ -70,9 +71,9 @@ export class UserController {
 
     await this.userService.update(id, {
       ...data,
-      role: {
-        id: role_id // fix removing of role id when not provided in update
-      }
+      // role: {
+      //   id: role_id // fix removing of role id when not provided in update
+      // }
     });
 
     return this.userService.findOne({id: id});

@@ -28,6 +28,6 @@ export class CreateUserDto {
   @IsDate()
   updated_at: Date;
   
-  @IsNotEmpty()
+  @IsOptional()
   role_id: number
 }

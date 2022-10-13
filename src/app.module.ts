@@ -4,9 +4,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CommonModule } from "./common/common.module";
 import { RoleModule } from "./role/role.module";
 import { PermissionModule } from "./permission/permission.module";
+import {AuthModule} from "./auth/auth.module";
 
 @Module({
   imports: [
+    AuthModule,
     UserModule,
     RoleModule,
     PermissionModule,
