@@ -33,18 +33,18 @@ export class UserController {
   async create( @Body() body: CreateUserDto ): Promise<User> {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(body.password, salt);
-    const { user_name, email, role_id, ...data } = body;
+    const { role_id, ...data } = body;
 
-    if ( user_name && await this.isUsernameExists(body) ) {
+    if ( body.user_name && await this.isUsernameExists(body) ) {
       throw new ConflictException(`username already exists`);
     }
 
-    if ( email && await this.isEmailExists(body) ) {
+    if ( body.email && await this.isEmailExists(body) ) {
       throw new ConflictException(`email already exists`);
     }
 
     return this.userService.create({
-      ...body,
+      ...data,
       password: hash,
       // role: {
       //   id: role_id

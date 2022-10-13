@@ -1,6 +1,6 @@
 import {
     BadRequestException,
-    Body, ClassSerializerInterceptor,
+    Body, ClassSerializerInterceptor, ConflictException,
     Controller,
     Get,
     NotFoundException,
@@ -12,9 +12,9 @@ import {
 import {JwtService} from '@nestjs/jwt';
 import {UserService} from "../user/user.service";
 import {RegisterDto} from "./dto/register.dto";
-// import {RegisterDto} from "./dto/register.dto";
-// import {Request, Response} from "express";
-// import {AuthGuard} from "./auth.guard";
+import {LoginDto} from "./dto/login.dto";
+import {Request, Response} from "express";
+import {AuthGuard} from "./auth.guard";
 import * as bcrypt from 'bcryptjs';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -34,6 +34,14 @@ export class AuthController {
             throw new BadRequestException('Password mismatch');
         }
 
+        if ( body.user_name && await this.isUsernameExists(body) ) {
+            throw new ConflictException(`username already exists`);
+        }
+
+        if ( body.email && await this.isEmailExists(body) ) {
+            throw new ConflictException(`email already exists`);
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
 
@@ -46,48 +54,59 @@ export class AuthController {
         });
     }
 
-    // @Post('login')
-    // async login(
-    //     @Body('email') email: string,
-    //     @Body('password') password: string,
-    //     @Res( {passthrough: true}) response: Response
-    // ) {
-    //     const user = await this.userService.findOneByEmail(email);
-    //
-    //     if ( !user ) {
-    //         throw new NotFoundException('User not found');
-    //     }
-    //
-    //     if ( ! await bcrypt.compare(password, user.password) ) {
-    //         throw new BadRequestException('Invalid credentials');
-    //     }
-    //
-    //     const jwt = await this.jwtService.signAsync({
-    //         id: user.id
-    //     })
-    //
-    //     response.cookie('jwt', jwt, { httpOnly: true})
-    //
-    //     return user;
-    // }
-    //
+    @Post('login')
+    async login( @Body() body: LoginDto, @Res( {passthrough: true}) response: Response ) {
+
+        const user = await this.userService.findOne({email: body.email});
+
+        if ( !user ) {
+            throw new NotFoundException('user not found');
+        }
+
+        if ( ! await bcrypt.compare(body.password, user.password) ) {
+            throw new BadRequestException('invalid credentials');
+        }
+
+        const jwt = await this.jwtService.signAsync({
+            id: user.id
+        });
+
+        response.cookie('jwt', jwt, { httpOnly: true})
+
+        return user;
+    }
+
     // @UseGuards(AuthGuard)
-    // @Get('user')
-    // async user( @Req() request: Request ) {
-    //     const cookie = request.cookies['jwt'];
-    //
-    //     const data = await this.jwtService.verifyAsync(cookie);
-    //
-    //     return this.userService.findOne( {id: data['id']});
-    // }
-    //
+    @Get('user')
+    async user( @Req() request: Request ) {
+        const cookie = request.cookies['jwt'];
+
+        const data = await this.jwtService.verifyAsync(cookie);
+
+        return this.userService.findOne( {id: data['id']});
+    }
+
     // @UseGuards(AuthGuard)
-    // @Post('logout')
-    // async logout( @Res({passthrough: true}) response: Response ) {
-    //     response.clearCookie('jwt')
-    //
-    //     return {
-    //         message: 'success'
-    //     }
-    // }
+    @Post('logout')
+    async logout( @Res({passthrough: true}) response: Response ) {
+        response.clearCookie('jwt')
+
+        return {
+            message: 'success'
+        }
+    }
+
+    async isUsernameExists( registerDto: RegisterDto | LoginDto ): Promise<any> {
+        const usernameExists = await this.userService.findOne({
+            user_name: registerDto.user_name
+        });
+        return !!(usernameExists);
+    }
+
+    async isEmailExists( createUserDto: RegisterDto | LoginDto ): Promise<any> {
+        const emailExists = await this.userService.findOne({
+            email: createUserDto.email
+        });
+        return !!(emailExists);
+    }
 }
