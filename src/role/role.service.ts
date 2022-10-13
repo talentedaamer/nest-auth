@@ -14,16 +14,10 @@ export class RoleService extends AbstractService {
         super(roleRepository);
     }
     
-    async findOne(id: number): Promise<any> {
+    async findOne(condition): Promise<any> {
         return await this.repository.findOne({
-            where: {
-                id,
-            },
+            where: condition,
             relations: ['permissions'],
         });
-    }
-    
-    async findByName(name: string): Promise<any> {
-        return await this.repository.findOneBy({ name });
     }
 }

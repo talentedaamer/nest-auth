@@ -1,6 +1,6 @@
 import {
   Body,
-  ClassSerializerInterceptor,
+  ClassSerializerInterceptor, ConflictException,
   Controller, Delete,
   Get,
   Param,
@@ -11,6 +11,8 @@ import {
 import { UserService } from "./user.service";
 import * as bcrypt from 'bcryptjs';
 import { User } from "./entities/user.entity";
+import {CreateUserDto} from "./dto/create-user.dto";
+import {UpdateUserDto} from "./dto/update-user.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 // @UseGuards(AuthGuard)
@@ -27,44 +29,71 @@ export class UserController {
     return await this.userService.all();
   }
   
-  // @Post()
-  // async create( @Body() body: UserCreateDto ): Promise<User> {
-  //   const password = await bcrypt.hash(body.password, 12);
-  //   // const { role_id, ...data } = body;
-  //
-  //   return this.userService.create({
-  //     ...body,
-  //     password,
-  //     // role: {
-  //     //   id: role_id
-  //     // }
-  //   })
-  // }
+  @Post()
+  async create( @Body() body: CreateUserDto ): Promise<User> {
+    const hash = await bcrypt.hash(body.password, 12);
+    const { user_name, email, role_id, ...data } = body;
 
-  // @Get( ':id')
-  // async get( @Param('id') id: number ) {
-  //   return this.userService.findOne({id: id});
-  // }
-  //
-  // @Put(':id')
-  // async update(
-  //   @Param('id') id: number,
-  //   @Body() body: UserUpdateDto
-  // ) {
-  //   const { role_id, ...data } = body;
-  //
-  //   await this.userService.update(id, {
-  //     ...data,
-  //     role: {
-  //       id: role_id
-  //     }
-  //   });
-  //
-  //   return this.userService.findOne({id: id});
-  // }
-  //
-  // @Delete(':id')
-  // async delete(@Param('id') id: number) {
-  //   return this.userService.delete(id);
-  // }
+    if ( user_name && await this.isUsernameExists(body) ) {
+      throw new ConflictException(`username already exists`);
+    }
+
+    if ( email && await this.isEmailExists(body) ) {
+      throw new ConflictException(`email already exists`);
+    }
+
+    return this.userService.create({
+      ...body,
+      password: hash,
+      role: {
+        id: role_id
+      }
+    })
+  }
+
+  @Get( ':id')
+  async get( @Param('id') id: number ) {
+    return this.userService.findOne({id: id});
+  }
+
+  @Put(':id')
+  async update( @Param('id') id: number, @Body() body: UpdateUserDto ) {
+    const { password, role_id, ...data } = body;
+
+    if ( body.user_name && await this.isUsernameExists(body) ) {
+      throw new ConflictException(`username already exists`);
+    }
+
+    if ( body.email && await this.isEmailExists(body) ) {
+      throw new ConflictException(`email already exists`);
+    }
+
+    await this.userService.update(id, {
+      ...data,
+      role: {
+        id: role_id // fix removing of role id when not provided in update
+      }
+    });
+
+    return this.userService.findOne({id: id});
+  }
+
+  @Delete(':id')
+  async delete( @Param('id') id: number ) {
+    return this.userService.delete(id);
+  }
+
+  async isUsernameExists( createUserDto: CreateUserDto | UpdateUserDto ): Promise<any> {
+    const usernameExists = await this.userService.findOne({
+      user_name: createUserDto.user_name
+    });
+    return !!(usernameExists);
+  }
+
+  async isEmailExists( createUserDto: CreateUserDto | UpdateUserDto ): Promise<any> {
+    const emailExists = await this.userService.findOne({
+      email: createUserDto.email
+    });
+    return !!(emailExists);
+  }
 }

@@ -26,11 +26,11 @@ export class User {
   user_name: string;
   
   @IsEmail()
-  @Column('varchar', { length: 40, unique: true })
+  @Column('varchar', { length: 100, unique: true })
   email: string;
   
   @Exclude()
-  @Column('varchar', { length: 40 })
+  @Column('longtext')
   password: string;
   
   @Column('boolean', { default: false })

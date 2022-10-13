@@ -14,6 +14,9 @@ export class UserService extends AbstractService {
   }
   
   async findOne(condition): Promise<User> {
-    return await this.userRepository.findOne({where: condition});
+    return await this.userRepository.findOne({
+      where: condition,
+      relations: ['role']
+    });
   }
 }

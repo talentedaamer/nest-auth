@@ -42,7 +42,7 @@ export class RoleController {
 
     @Get( ':id')
     async get( @Param('id') id: number ) {
-        const foundRole = await this.roleService.findOne(id);
+        const foundRole = await this.roleService.findOne({id: id});
     
         if (!foundRole) {
             throw new NotFoundException(`role not found`)
@@ -85,7 +85,7 @@ export class RoleController {
     
     async isRoleExists( createRoleDto: CreateRoleDto | UpdateRoleDto ): Promise<any> {
         const { name } = createRoleDto;
-        const roleExists = await this.roleService.findByName(name);
+        const roleExists = await this.roleService.findOne({name: name});
         return !!(roleExists);
     }
     
