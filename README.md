@@ -1,15 +1,15 @@
-## NestJs Authentication
+## NestJs Authentication 🛡️
 
 NestJs Project containing full auth module, users module, roles modules, database integration, jwt, bcrypt, validations, guards, and permissions starter project.
 
-### Package Installation
+### 📦 Package Installation
 
 Install packages.
 ```bash
 $ npm install
 ```
 
-### Docker
+### 🚢 Docker
 
 Install Docker desktop. Update docker-compose.yml base on your configurations and run the following command. 
 ```bash
@@ -17,7 +17,7 @@ $ docker-compose up -d
 ```
 ![Routes](screenshots/routes.PNG)
 
-## Running the app
+## 🚀 Running the app
 
 ```bash
 # development
@@ -28,7 +28,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-### Test
+### 🧪 Test
 
 ```bash
 # unit tests
@@ -38,9 +38,9 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-## Routes and Endpoints
+## 🌐 Routes and Endpoints
 
-### Auth
+### 🔒 Auth
 ```bash
 # Register
 POST  http://localhost:3000/api/register
@@ -66,7 +66,7 @@ GET   http://localhost:8000/api/user
 POST  http://localhost:3000/api/logout
 ```
 
-### User
+### 🙍‍♂️ User
 ```bash
 # Get list of all users
 GET   http://localhost:3000/api/users
@@ -99,7 +99,7 @@ DELETE  http://localhost:3000/api/users/:id
 # Params:  key: id, value: 1
 ```
 
-### Roles
+### 👮 Roles
 ```bash
 # Get list of all roles
 Get       http://localhost:3000/api/roles
@@ -126,7 +126,7 @@ Delete    http://localhost:3000/api/roles/:id
 # Params:  key: id, value: 1
 ```
 
-### Permissions
+### 🔑 Permissions
 ```bash
 # Get list of all permissions
 Get       http://localhost:3000/api/permissions
